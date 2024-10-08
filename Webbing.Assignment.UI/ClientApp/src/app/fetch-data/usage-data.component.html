@@ -1,27 +1,26 @@
+<h1>Summary</h1>
 
 <div class="refresh-data">
-  <button class="btn btn-primary" (click)="refreshData()">Refresh data</button>
+  <button class="btn btn-primary" (click)="refreshData()">Refresh Data</button>
 </div>
-<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="usage">  
-  <tbody>
 
-    <tr *ngFor="let usageItem of usage">
-      <div class="metric-card">
-        <h2 class="metric-title">{{ usageItem.title }}</h2>
-        <p class="metric-value"><span>{{ usageItem.count }}</span><span>{{usageItem.unit}}</span></p>
-        <p class="metric-description">{{ usageItem.subtitle }}</p>
-        <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="usageItem.customerInfos">  
-          <tbody>
-            <tr *ngFor="let customerInfo of usageItem.customerInfos">
-              <td>{{ customerInfo.customerId }}</td>
-              <td>{{ customerInfo.customerName }}</td>
-              <td>{{ customerInfo.simsCount }}</td>
-              <td>{{ customerInfo.quota }}</td>
-              <td>{{ customerInfo.lastUsage }}</td>
-            </tr>
-          </tbody>
-        </table>
+<div class="metrics-container">
+  <div class="metric-card" *ngFor="let item of usage; let i = index">
+    <div class="metric-header">
+      <span class="metric-number">{{ i + 1 }}.</span>
+      <h2 class="metric-title">{{ item.title }}</h2>
+      <span class="metric-value-badge">{{ item.count }}{{ item.unit }}</span>
+    </div>
+    <p class="metric-description">{{ item.subtitle }}</p>
+    
+    <div *ngIf="item.customerInfos" class="customer-list">
+      <div *ngFor="let customer of item.customerInfos" class="customer-item" [ngClass]="{'customer-item-primary': customer.customerId === '1'}">
+        <h3>{{ customer.customerName }}</h3>
+        <p>{{ customer.lastUsage | date:'d MMM yyyy' }}</p>
+        <p>SIMs count: {{ customer.simsCount }}</p>
+        <p>Total Usage: {{ customer.quota }}MB</p>
+        <p>Customer Id: {{ customer.customerId }}</p>
       </div>
-    </tr>
-  </tbody>
-</table>
+    </div>
+  </div>
+</div>

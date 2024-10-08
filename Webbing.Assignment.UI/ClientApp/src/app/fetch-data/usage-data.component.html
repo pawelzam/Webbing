@@ -1,0 +1,18 @@
+<h1 id="tableLabel">Usage Data</h1>
+
+<p>This component demonstrates fetching usage data from the server.</p>
+
+<p *ngIf="!usage"><em>Loading...</em></p>
+
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="usage">
+  <thead>
+    <tr>
+      <th>Col1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let usageItem of usage">
+      <td>{{ usageItem.field1 }}</td>
+    </tr>
+  </tbody>
+</table>

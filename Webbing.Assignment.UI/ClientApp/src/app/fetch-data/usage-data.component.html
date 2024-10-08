@@ -1,5 +1,3 @@
-<h1>Summary</h1>
-
 <div class="refresh-data">
   <button class="btn btn-primary" (click)="refreshData()">Refresh Data</button>
 </div>
@@ -14,12 +12,12 @@
     <p class="metric-description">{{ item.subtitle }}</p>
     
     <div *ngIf="item.customerInfos" class="customer-list">
-      <div *ngFor="let customer of item.customerInfos" class="customer-item" [ngClass]="{'customer-item-primary': customer.customerId === '1'}">
+      <div *ngFor="let customer of item.customerInfos" class="customer-item">
         <h3>{{ customer.customerName }}</h3>
         <p>{{ customer.lastUsage | date:'d MMM yyyy' }}</p>
         <p>SIMs count: {{ customer.simsCount }}</p>
         <p>Total Usage: {{ customer.quota }}MB</p>
-        <p>Customer Id: {{ customer.customerId }}</p>
+        <p class="customer-id">Customer Id: {{ customer.customerId }}</p>
       </div>
     </div>
   </div>

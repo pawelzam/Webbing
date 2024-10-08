@@ -5,6 +5,7 @@ public class Usage
 {
     public int Id { get; set; }
     public Guid CustomerId { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
     public Guid SimId { get; set; }
     public DateTime Date { get; set; }
     public long Quota { get; set; }

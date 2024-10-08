@@ -1,18 +1,27 @@
-<h1 id="tableLabel">Usage Data</h1>
 
-<p>This component demonstrates fetching usage data from the server.</p>
-
-<p *ngIf="!usage"><em>Loading...</em></p>
-
-<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="usage">
-  <thead>
-    <tr>
-      <th>Col1</th>
-    </tr>
-  </thead>
+<div class="refresh-data">
+  <button class="btn btn-primary" (click)="refreshData()">Refresh data</button>
+</div>
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="usage">  
   <tbody>
+
     <tr *ngFor="let usageItem of usage">
-      <td>{{ usageItem.field1 }}</td>
+      <div class="metric-card">
+        <h2 class="metric-title">{{ usageItem.title }}</h2>
+        <p class="metric-value"><span>{{ usageItem.count }}</span><span>{{usageItem.unit}}</span></p>
+        <p class="metric-description">{{ usageItem.subtitle }}</p>
+        <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="usageItem.customerInfos">  
+          <tbody>
+            <tr *ngFor="let customerInfo of usageItem.customerInfos">
+              <td>{{ customerInfo.customerId }}</td>
+              <td>{{ customerInfo.customerName }}</td>
+              <td>{{ customerInfo.simsCount }}</td>
+              <td>{{ customerInfo.quota }}</td>
+              <td>{{ customerInfo.lastUsage }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </tr>
   </tbody>
 </table>

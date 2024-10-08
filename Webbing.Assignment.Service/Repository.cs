@@ -27,31 +27,48 @@ public class Repository : IRepository
 
     public async Task<IEnumerable<Usage>> GetUsageForNetworkEventsAsync(CancellationToken cancellationToken = default)
     {
-        return await _applicationDbContext.NetworkEvents.Select(p=> new Usage
-        {
-            CustomerId = _applicationDbContext.Sims.First(s=>s.Id == p.SimId).CustomerId,
-            Date = p.CreatedOnUtc.Date,
-            SimId = p.SimId,
-            Quota = p.Quota
-        }).ToListAsync(cancellationToken);
+        var query = from networkEvent in _applicationDbContext.NetworkEvents
+                    join sim in _applicationDbContext.Sims on networkEvent.SimId equals sim.Id
+                    join customer in _applicationDbContext.Customers on sim.CustomerId equals customer.Id
+                    select new Usage
+                    {
+                        CustomerId = sim.CustomerId,
+                        CustomerName = customer.Name,
+                        Date = networkEvent.CreatedOnUtc.Date,
+                        SimId = networkEvent.SimId,
+                        Quota = networkEvent.Quota
+                    };
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public async Task<UsagesGroupByCustomer> GetUsagesGroupByCustomerAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
     {
         var result = await _applicationDbContext.Usages
-            .GroupBy(u => u.CustomerId)
+            .Where(u => u.Date >= fromDate && u.Date <= toDate) // Ensure to filter by date
+            .GroupBy(u => new { u.CustomerId, u.CustomerName })
             .Select(g => new
             {
-                SimId = g.Key,
-                Count = g.Count(),
-                Quota = g.Sum(u => u.Quota)
+                g.Key.CustomerId,
+                g.Key.CustomerName,
+                TotalQuota = g.Sum(u => u.Quota) / (1024 * 1024),
+                LastUsageDate = g.Max(u => u.Date),
+                SimIds = g.Select(u => u.SimId).Distinct()
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
-        var totalCount = result.Count;
-        var totalQuota = result.Sum(r => r.Quota);
+        var customerInfos = result.Select(g => new CustomerInfo(
+            g.CustomerId,
+            g.CustomerName,
+            g.SimIds.Count(),
+            g.TotalQuota,
+            g.LastUsageDate
+        ))
+        .OrderBy(p => p.Quota)
+        .Take(2)
+        .ToList();
 
-        return new UsagesGroupByCustomer(totalCount, totalQuota);
+        return new UsagesGroupByCustomer(customerInfos);
     }
 
     public async Task<UsagesGroupBySim> GetUsagesGroupBySimAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
@@ -62,7 +79,7 @@ public class Repository : IRepository
             {
                 SimId = g.Key,
                 Count = g.Count(),
-                Quota = g.Sum(u => u.Quota)
+                Quota = g.Sum(u => u.Quota) / (1024 * 1024)
             })
             .ToListAsync();
 
